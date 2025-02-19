@@ -18,3 +18,18 @@
     background-color: rgb(189, 187, 187);
     color: rgb(170, 0, 57);
   }
+
+  .entry-wrapper {
+    
+
+  }
+
+  .blog-card-area {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin:auto;
+  }
+  .blog-card {
+
+  }

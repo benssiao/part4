@@ -1,147 +1,64 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect , useRef } from 'react'
+// components
 import Blog from './components/Blog'
+import PostBlog from './components/PostBlog'
+import { ErrorNotification, ConfirmationNotification } from './components/Notifications'
+import SignInForm from './components/SignInForm'
+import Toggleable from './components/Toggleable'
+//services
 import blogService from './services/blogs'
-import loginService from "./services/login"
-import "./App.css"
+import loginService from './services/login'
+import './App.css'
 
 
-function ErrorNotification({message}) {
-    if (message === null) {
-      return null;
-    }
-    return (
-      <div className="errorNotification">
-        {message}
-      </div>
-    )
-
-  }
-
-function ConfirmationNotification({message}) {
-    if (message === null) {
-      return null;
-    }
-    return (
-      <div className="notification">
-        {message}
-      </div>
-    )
-
-}
-function PostBlog({handleBlog}) {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
-  const [likes, setLikes] = useState(0);
-
-  function onSubmit(event) {
-    event.preventDefault();
-    handleBlog({title, author, url, likes});
-  }
-  return (
-  <form className="post-form" onSubmit={onSubmit}>
-    <fieldset>
-    <legend>Post a blog</legend>
-    <input 
-        type="text" 
-        value={title} 
-        onChange={({target}) => setTitle(target.value)}
-      />
-      <input 
-        type="text" 
-        value={author} 
-        onChange={({target}) => setAuthor(target.value)}
-      />
-      <input 
-        type="text" 
-        value={url} 
-        onChange={({target}) => setUrl(target.value)}
-      />
-      <input 
-        type="number" 
-        value={likes} 
-        onChange={({target}) => setLikes(Number(target.value))}
-      />
-    <button type="submit">post blog</button>
-    </fieldset>
-  </form>
-  )
-
-}
-function SignInForm({handleSignIn}) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  async function onSubmit(event) {
-    event.preventDefault();
-    try {
-      await handleSignIn(username, password);
-      setUsername("");
-      setPassword("");
-    }
-    catch(e) {
-
-    }
-    
-  }
-  return (
-    <form className="signin-form" onSubmit={onSubmit}>
-    <fieldset>
-    <legend>Log in to application</legend>
-      <input type="string" value={username} onChange={({target})=> setUsername(target.value)}></input>
-      <input type="password" value={password} onChange={({target}) => setPassword(target.value)}></input>
-      <button type="submit">log in</button>
-      </fieldset>
-    </form>
-  )
-}
-
-function LogOutButton({setUser}) {
+function LogOutButton({ setUser }) {
   return <button onClick={() => {
-    window.localStorage.removeItem("signedInUser");
-    setUser(null);
+    window.localStorage.removeItem('signedInUser')
+    setUser(null)
 
   }}>log out</button>
 }
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [blogs, setBlogs] = useState([])
+  const [user, setUser] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [confirmationNotification, setConfirmationNotification] = useState(null)
-  const [justPosted, setJustPosted] = useState(0);
- 
+  const [justPosted, setJustPosted] = useState(0)
+  const [userAdded, setUserAdded] = useState(new Set())
+  const blogPostRef = useRef(null)
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [justPosted])
 
   useEffect(() => {
-    const signedInUser = window.localStorage.getItem("signedInUser");
+    const signedInUser = window.localStorage.getItem('signedInUser')
     if (signedInUser) {
-      setUser(JSON.parse(signedInUser));
+      setUser(JSON.parse(signedInUser))
     }
-   
   }, [])
 
   async function handleSignIn(username, password) {
     try {
-      const loginResponse = await loginService.login({username, password});
-      const loginBody = loginResponse.data;
-      setUser(loginBody);
+      const loginResponse = await loginService.login({ username, password })
+      const loginBody = loginResponse.data
+      setUser(loginBody)
       window.localStorage.setItem(
-        "signedInUser", JSON.stringify(loginBody)
+        'signedInUser', JSON.stringify(loginBody)
       )
-      setConfirmationNotification("Logged in");
+      setConfirmationNotification('Logged in')
       setTimeout(() => {
         setConfirmationNotification(null)
-      }, 5000);
+      }, 5000)
     }
     catch(error) {
       setErrorMessage(error.response.data.error)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
-      throw error; // so i can skip the clear username and password in the SignInForm component.
+      throw error // so i can skip the clear username and password in the SignInForm component.
 
     }
   }
@@ -149,56 +66,108 @@ const App = () => {
   async function handleBlog(blogData) {
     try{
       if (user === null) {
-        throw new Error("Not logged in")
+        throw new Error('Not logged in')
       }
-      await blogService.postBlog(blogData, user.token);
-      setConfirmationNotification("Posted successfully");
-      setJustPosted(justPosted+1);
+      await blogService.postBlog(blogData, user.token)
+      setConfirmationNotification('Posted successfully')
+      setJustPosted(justPosted+1)
+      setUserAdded(new Set([...userAdded, blogData.url]))
+      blogPostRef.current.toggleVisibility()
       setTimeout(() => {
         setConfirmationNotification(null)
-      }, 5000);
+      }, 5000)
     }
     catch(error) {
-      console.log(error);
+      console.log(error)
       setErrorMessage(error.response.data.error)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
     }
-    
   }
-  
-  
-    if (user === null) {
-      return (
-      <>
-      <SignInForm handleSignIn={handleSignIn}>
-      </SignInForm>
-      </>
-      )
+
+  async function handleIncrementLikes(blog) {
+    try{
+      await blogService.updateBlog({ ...blog, likes: blog.likes+1 }, user.token)
+      setJustPosted(justPosted+1)
+
     }
-   
-    
-    return ( 
+    catch(error) {
+      console.error(error)
+      setErrorMessage(error.response.data.error)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+  async function handleRemove(blog) {
+    try {
+      await blogService.removeBlog(blog, user.token)
+      setJustPosted(justPosted+1)
+    }
+
+    catch(error) {
+      console.error(error)
+      setErrorMessage(error.response.data.error)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+  function sortByLikes() {
+    setBlogs([...blogs].sort((blog1, blog2) => {
+      return blog2.likes - blog1.likes
+    }))
+  }
+  if (user === null) {
+    return (
       <>
-      <PostBlog handleBlog={handleBlog}></PostBlog>
+        <SignInForm handleSignIn={handleSignIn}>
+        </SignInForm>
+      </>
+    )
+  }
+
+
+  return (
+    <>
       <LogOutButton setUser={setUser}></LogOutButton>
+
       <div>
         {errorMessage&&<ErrorNotification message={errorMessage}>
         </ErrorNotification>}
         {confirmationNotification&& <ConfirmationNotification message={confirmationNotification}>
         </ConfirmationNotification>}
+
         <h2>blogs</h2>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
-        )}
+        <Toggleable ref={blogPostRef} showLabel="create new blogs" hideLabel="cancel">
+          <PostBlog handleBlog={handleBlog}></PostBlog>
+        </Toggleable>
+        <button onClick={sortByLikes}>sort by likes</button>
+        <div className="blog-card-area">
+          {blogs.map(blog =>
+            <Toggleable key={blog.id} showLabel="view" hideLabel="hide">
+              <Blog blog={blog} />
+              <button onClick={() => {
+                handleIncrementLikes(blog)
+              }}>
+            increase likes
+              </button>
+              {userAdded.has(blog.url)?
+                <button onClick={() => {
+                  if (window.confirm(`Are you sure you want to remove ${blog.title}?`)){
+                    handleRemove(blog)
+                  }
+
+                }}>remove</button>
+                : null
+              }
+            </Toggleable>
+          )}
+        </div>
       </div>
-      </>
-    )
-
-    
-   
-
+    </>
+  )
 }
 
 export default App
