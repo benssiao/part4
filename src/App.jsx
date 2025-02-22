@@ -24,7 +24,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [confirmationNotification, setConfirmationNotification] = useState(null)
   const [justPosted, setJustPosted] = useState(0)
-  const [userAdded, setUserAdded] = useState(new Set())
+ 
   const blogPostRef = useRef(null)
 
   useEffect(() => {
@@ -39,6 +39,7 @@ const App = () => {
       setUser(JSON.parse(signedInUser))
     }
   }, [])
+
 
   async function handleSignIn(username, password) {
     try {
@@ -71,7 +72,6 @@ const App = () => {
       await blogService.postBlog(blogData, user.token)
       setConfirmationNotification('Posted successfully')
       setJustPosted(justPosted+1)
-      setUserAdded(new Set([...userAdded, blogData.url]))
       blogPostRef.current.toggleVisibility()
       setTimeout(() => {
         setConfirmationNotification(null)
@@ -104,6 +104,10 @@ const App = () => {
     try {
       await blogService.removeBlog(blog, user.token)
       setJustPosted(justPosted+1)
+      setConfirmationNotification(`Removed ${blog.title} successfully`)
+      setTimeout(() => {
+        setConfirmationNotification(null)
+      }, 5000)
     }
 
     catch(error) {
@@ -119,6 +123,7 @@ const App = () => {
       return blog2.likes - blog1.likes
     }))
   }
+
   if (user === null) {
     return (
       <>
@@ -128,42 +133,37 @@ const App = () => {
     )
   }
 
-
   return (
     <>
-      <LogOutButton setUser={setUser}></LogOutButton>
-
+      <LogOutButton setUser={setUser} />
       <div>
-        {errorMessage&&<ErrorNotification message={errorMessage}>
-        </ErrorNotification>}
-        {confirmationNotification&& <ConfirmationNotification message={confirmationNotification}>
-        </ConfirmationNotification>}
-
+        {errorMessage && (
+          <ErrorNotification message={errorMessage} />
+        )}
+        {confirmationNotification && (
+          <ConfirmationNotification message={confirmationNotification} />
+        )}
         <h2>blogs</h2>
-        <Toggleable ref={blogPostRef} showLabel="create new blogs" hideLabel="cancel">
-          <PostBlog handleBlog={handleBlog}></PostBlog>
+        <Toggleable
+          ref={ blogPostRef }
+          showLabel="create new blogs"
+          hideLabel="cancel"
+        >
+          <PostBlog handleBlog={handleBlog} username={user.username}/>
         </Toggleable>
-        <button onClick={sortByLikes}>sort by likes</button>
+        <button onClick={sortByLikes}>
+          sort by likes
+        </button>
         <div className="blog-card-area">
-          {blogs.map(blog =>
-            <Toggleable key={blog.id} showLabel="view" hideLabel="hide">
-              <Blog blog={blog} />
-              <button onClick={() => {
-                handleIncrementLikes(blog)
-              }}>
-            increase likes
-              </button>
-              {userAdded.has(blog.url)?
-                <button onClick={() => {
-                  if (window.confirm(`Are you sure you want to remove ${blog.title}?`)){
-                    handleRemove(blog)
-                  }
-
-                }}>remove</button>
-                : null
-              }
-            </Toggleable>
-          )}
+          {blogs.map(blog => (
+            <Blog
+              key={blog.url}
+              blog={blog}
+              handleIncrementLikes={handleIncrementLikes}
+              handleRemove={handleRemove}
+              signedInUsername={user.username}
+            />
+          ))}
         </div>
       </div>
     </>
