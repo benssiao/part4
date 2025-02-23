@@ -1,41 +1,245 @@
+/* App.css */
 
+:root {
+  --primary-dark: #0a192f;
+  --primary-light: #172a45;
+  --accent: #64ffda;
+  --text-primary: #ccd6f6;
+  --text-secondary: #8892b0;
+  --error: #ff6b6b;
+  --success: #48c774;
+}
+
+body {
+  background-color: var(--primary-dark);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button {
+  background-color: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: rgba(100, 255, 218, 0.1);
+}
+
+input {
+  background-color: var(--primary-light);
+  border: 1px solid var(--text-secondary);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 4px 0;
+  width: 200px;
+}
+
+input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+fieldset {
+  border: 1px solid var(--text-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+legend {
+  color: var(--accent);
+  padding: 0 10px;
+}
+
+
+
+/* Forms */
+.signin-form, .post-form {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.entry-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Notifications */
+.errorNotification, .notification {
+  left: 30%;
+  position: absolute;
+  background-color: var(--primary-light);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 12px 0;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.errorNotification {
+  color: var(--error);
+  border-left: 4px solid var(--error);
+}
 
 .notification {
-    position: fixed;
-    top:25%;
-    right: 45%;
-    border: 1px solid rgb(0, 85, 0);
-    background-color: rgb(189, 187, 187);
-    color: rgb(0, 85, 0);
-  }
-  
-  
-  .errorNotification {
-    position: fixed;
-    top:25%;
-    right: 45%;
-    border: 1px solid rgb(170, 0, 57);
-    background-color: rgb(189, 187, 187);
-    color: rgb(170, 0, 57);
-  }
+  color: var(--success);
+  border-left: 4px solid var(--success);
+}
 
-  .entry-wrapper {
-    
+/* Headers */
+h2 {
+  color: var(--accent);
+  margin: 24px 0;
+  text-align: center;
+}
 
-  }
+/* Toggleable component */
+.toggleable-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
 
-  .blog-card-area {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    margin:auto;
-  }
-  .blog-card {
-    
-    padding-top: 10px;
-    padding-left: 2px;
-    border: solid;
-    border-width: 1px;
-    margin-bottom: 5px;
+/* Log out button specific styling */
+button[onClick*="setUser"] {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
 
-  }
+/* Container for the main content */
+.main-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.remove-button {
+  background-color: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+.remove-button:hover {
+  background-color: rgba(255, 107, 107, 0.1); /* Using var(--error) with opacity */
+}
+
+.logout-button {
+  background-color: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 107, 107, 0.1); /* Using var(--error) with opacity */
+}
+
+.create-and-sort-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.toggle-button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.toggle-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.blog-card {
+  background-color: var(--primary-light);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.extra-content-blog-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.likes-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+}
+
+.remove-button {
+  color: var(--error);
+  border-color: var(--error);
+  width: fit-content;
+  margin:0% auto;
+}
+.blog-card-wrapper {
+  display: flex;
+}
+
+.blog-visibility-button {
+  width: fit-content;
+  height: 100%;
+  margin-top:7%;
+}
+
+.toggle-content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-content-wrapper button {
+  width: fit-content;
+  margin: auto;
+}
+
+.sortByLikes-button {
+  margin-top: 5%;
+}

@@ -12,7 +12,7 @@ import './App.css'
 
 
 function LogOutButton({ setUser }) {
-  return <button onClick={() => {
+  return <button className="logout-button" onClick={() => {
     window.localStorage.removeItem('signedInUser')
     setUser(null)
 
@@ -53,14 +53,14 @@ const App = () => {
       setTimeout(() => {
         setConfirmationNotification(null)
       }, 5000)
+      return true;
     }
     catch(error) {
       setErrorMessage(error.response.data.error)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
-      throw error // so i can skip the clear username and password in the SignInForm component.
-
+      return false;
     }
   }
 
@@ -127,14 +127,29 @@ const App = () => {
   if (user === null) {
     return (
       <>
-        <SignInForm handleSignIn={handleSignIn}>
-        </SignInForm>
+        <div>
+          {errorMessage && (
+            <ErrorNotification message={errorMessage} />
+          )}
+          {confirmationNotification && (
+            <ConfirmationNotification message={confirmationNotification} />
+          )}
+        </div>
+        <>
+          <SignInForm
+            handleSignIn={handleSignIn}
+            setErrorMessage={setErrorMessage}
+            setConfirmationNotification={setConfirmationNotification}
+          >
+          </SignInForm>
+        </>
       </>
     )
   }
 
   return (
-    <>
+
+    <div className="main-container">
       <LogOutButton setUser={setUser} />
       <div>
         {errorMessage && (
@@ -143,17 +158,19 @@ const App = () => {
         {confirmationNotification && (
           <ConfirmationNotification message={confirmationNotification} />
         )}
-        <h2>blogs</h2>
-        <Toggleable
-          ref={ blogPostRef }
-          showLabel="create new blogs"
-          hideLabel="cancel"
-        >
-          <PostBlog handleBlog={handleBlog} username={user.username}/>
-        </Toggleable>
-        <button onClick={sortByLikes}>
-          sort by likes
-        </button>
+        <h2>Blog App</h2>
+        <div className="create-and-sort-area">
+          <Toggleable
+            ref={ blogPostRef }
+            showLabel="create new blogs"
+            hideLabel="cancel"
+          >
+            <PostBlog handleBlog={handleBlog} username={user.username}/>
+          </Toggleable>
+          <button className="sortByLikes-button" onClick={sortByLikes}>
+            sort by likes
+          </button>
+        </div>
         <div className="blog-card-area">
           {blogs.map(blog => (
             <Blog
@@ -166,7 +183,7 @@ const App = () => {
           ))}
         </div>
       </div>
-    </>
+      </div>
   )
 }
 

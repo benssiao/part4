@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react'
 
-function SignInForm({ handleSignIn }) {
+function SignInForm({ handleSignIn, setErrorMessage, setConfirmationNotification }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   async function onSubmit(event) {
     event.preventDefault()
-    try {
-      await handleSignIn(username, password)
+    if (await handleSignIn(username, password)){
       setUsername('')
       setPassword('')
     }
-    catch(e) {
-
-    }
+    
 
   }
   return (
